@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="css/element-ui@2.15.14.css">
+</head>
+<body>
+<div id="app" style="margin-bottom: 10%;">
+    <el-row>
+        <el-col :span="24">
+            <div style="text-align: center;">
+                <h1>导入文件</h1>
+            </div>
+        </el-col>
+    </el-row>
+    <el-row>
+        <el-col :span="8">
+            <div class="grid-content bg-purple"></div>
+        </el-col>
+        <el-col :span="8">
+            <div class="grid-content bg-purple-light">
+                <el-form :model="form" ref="form" label-width="120px" class="demo-dynamic">
+                    <el-form-item prop="importFile" label="视频路径"
+                                  :rules="{ required: true, message: '请输入文档导入路径', trigger: 'blur' }">
+                        <el-input placeholder="请输入" v-model="form.importFile" :disabled="isRunning"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="exportFile" label="图片地址"
+                                  :rules="{ required: true, message: '请输入文档输出路径', trigger: 'blur' }">
+                        <el-input placeholder="请输入" v-model="form.exportFile" :disabled="isRunning"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="cookie" label="cookie"
+                                  :rules="{ required: true, message: '请输入cookie', trigger: 'blur' }">
+                        <el-input placeholder="请输入" v-model="form.cookie" :disabled="isRunning"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="boardId" label="图库id"
+                                  :rules="{ required: true, message: '请输入图库id', trigger: 'blur' }">
+                        <el-input placeholder="请输入" v-model="form.boardId" :disabled="isRunning"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="executorSize" label="上传线程"
+                                  :rules="{ required: true, message: '请输入上传线程', trigger: 'blur' }">
+                        <el-input placeholder="请输入" v-model="form.executorSize" :disabled="isRunning"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm('form')"
+                                   :disabled="isRunning">提交</el-button>
+                        <el-button @click="resetForm('form')" :disabled="isRunning">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-col>
+        <el-col :span="8">
+            <div class="grid-content bg-purple"></div>
+        </el-col>
+    </el-row>
+    <el-row>
+        <el-col :span="24">
+            <div style="text-align: center;">
+                <h3>执行结果</h3>
+            </div>
+        </el-col>
+
+        <el-row>
+            <el-col :span="8">
+                <div class="grid-content"></div>
+            </el-col>
+            <el-col :span="8">
+                <div class="grid-content">
+                    <template>
+                        <el-table :data="tableData" style="width: 100%">
+                            <el-table-column show-overflow-tooltip prop="fileName" label="文件" width="180">
+                            </el-table-column>
+                            <el-table-column prop="status" label="状态" width="80">
+                            </el-table-column>
+                            <el-table-column prop="startTime" label="开始时间" width="180">
+                            </el-table-column>
+                            <el-table-column prop="endTime" label="结束时间" width="180">
+                            </el-table-column>
+                        </el-table>
+                    </template>
+                </div>
+            </el-col>
+            <el-col :span="8">
+                <div class="grid-content"></div>
+            </el-col>
+        </el-row>
+
+</div>
+</body>
+<!-- import Vue before Element -->
+<script src="js/vue@2.js"></script>
+<!-- import JavaScript -->
+<script src="js/element-ui@2.15.14.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                form: {
+                    domains: [],
+                    importFile: '',
+                    exportFile: '',
+                    cookie: '',
+                    boardId: '',
+                    executorSize: ''
+                },
+                tableData: [],
+                intervalId: null,
+                isRunning: false,
+                loading: null,
+				config : []
+            }
+        },
+        created() {
+			//this.getConfig()
+            this.openFullScreen()
+            this.intervalId = setInterval(() => {
+                this.result()
+            }, 1000);
+        },
+        beforeDestroy() {
+            // 清除定时任务
+            clearInterval(this.intervalId);
+        },
+        methods: {
+            submitForm(formName) {
+                let that = this
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.isRunning = true
+                        axios.post('/api/word', this.form).then(res => {
+                            if (res.status === 200 && res.data.code === 0) {
+                                that.tableData = []
+                                that.intervalId = setInterval(() => {
+                                    that.result()
+                                }, 1000);
+                            } else {
+                                that.$message.error(res.data.msg);
+                                this.isRunning = false
+                            }
+                        }).catch(function(error) {
+                            console.log('error submit!!', error);
+                            this.isRunning = false
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.form = {
+                    domains: [],
+                    importFile: '',
+                    exportFile: '',
+                    cookie: '',
+                    boardId: '',
+                    executorSize: ''
+                }
+                this.$refs[formName].resetFields();
+            },
+            removeDomain(item) {
+                var index = this.form.domains.indexOf(item)
+                if (index !== -1) {
+                    this.form.domains.splice(index, 1)
+                }
+            },
+            addDomain() {
+                this.form.domains.push({
+                    value: '',
+                    key: Date.now()
+                });
+            },
+            result() {
+                let that = this
+                axios.get('/api/status').then(res => {
+                    console.log(res);
+                    if (res.status === 200 && res.data.code === 0 && res.data.data !== null) {
+                        that.tableData = res.data.data
+                        this.isRunning = true
+                        this.form = res.data.data[0].taskParams
+                    } else {
+                        clearInterval(that.intervalId);
+                        this.isRunning = false
+                    }
+                    this.loading.close();
+                }).catch(function(error) {
+                    clearInterval(that.intervalId);
+                });
+            },
+            openFullScreen() {
+                this.loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+            },
+            getConfig() {
+                axios.get('/api/config').then(res => {
+                    this.config = res.data.data
+                }).catch(function(error) {
+                });
+            },
+        },
+    })
+</script>
+<style>
+    .grid-content {
+        min-height: 36px;
+    }
+</style>
+</html>
