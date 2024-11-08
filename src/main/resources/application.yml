@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite::resource:sql/xiaohu.db
+    url: jdbc:sqlite:./sql/xiaohu.db
 
 #mybatis
 mybatis:
@@ -21,8 +21,8 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
   type-aliases-package: ${jdi.info.base-package}.dal.dataobject
 
-
+# 自定义配置
 http:
   proxy:
     ip: 192.168.30.66
-    port: 8080
+    port: 7890

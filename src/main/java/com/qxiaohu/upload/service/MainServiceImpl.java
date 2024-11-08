@@ -1,5 +1,6 @@
 package com.qxiaohu.upload.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qxiaohu.upload.db.XiaohuVideo;
 import com.qxiaohu.upload.enums.ErrorCodeConstants;
 import com.qxiaohu.upload.mapper.XiaohuVideoMapper;
@@ -9,9 +10,11 @@ import com.qxiaohu.upload.util.JavtrailersUtil;
 import com.qxiaohu.upload.async.FfmpegAsync;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -102,12 +105,14 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public void getVideoInfo(String filePath) {
+    @Transactional
+    public List<XiaohuVideo> save(String filePath) {
         File path = new File(filePath);
         File[] files = path.listFiles(pathname -> pathname.getName().endsWith(".m3u8"));
         if (files == null){
-            return;
+            return new ArrayList<>();
         }
+        List<XiaohuVideo> list = new ArrayList<>();
         Date date = new Date();
         for (File file : files) {
             String fileName = file.getName().replace(".m3u8", "");
@@ -119,8 +124,31 @@ public class MainServiceImpl implements MainService {
             xiaohuVideo.setUpdateTime(date);
             xiaohuVideo.setUrl("https://2296429409.github.io/app_m3u8/"+file.getName());
             videoMapper.insert(xiaohuVideo);
+            list.add(xiaohuVideo);
         }
+        return list;
     }
 
+    @Override
+    public Page<XiaohuVideo> page(String name, Long page, Long size) {
+        return videoMapper.page(name, page, size);
+    }
+
+    @Override
+    public boolean removeById(Long id) {
+        return videoMapper.deleteById(id) > 0;
+    }
+
+    @Override
+    public boolean save(XiaohuVideo video) {
+        video.setUpdateTime(new Date());
+        return videoMapper.insert(video) > 0;
+    }
+
+    @Override
+    public boolean updateById(XiaohuVideo video) {
+        video.setUpdateTime(new Date());
+        return videoMapper.updateById(video) > 0;
+    }
 
 }

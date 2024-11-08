@@ -42,7 +42,7 @@ public class SpringbootTest {
 
     @Test
     public void getVideoInfo(){
-        mainService.getVideoInfo("D:\\dome\\数据");
+        mainService.save("D:\\dome\\数据");
     }
 
     @Test

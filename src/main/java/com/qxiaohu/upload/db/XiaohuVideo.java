@@ -3,7 +3,9 @@ package com.qxiaohu.upload.db;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -11,7 +13,7 @@ import java.util.Date;
  * @author xiaxh
  * @date 2024/11/7
  */
-@KeySequence("law_model_essay_seq")
+@KeySequence("xiaohu_video_seq")
 @Data
 public class XiaohuVideo {
     /**
@@ -29,6 +31,8 @@ public class XiaohuVideo {
      * 日期
      */
     @TableField("`date`")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date date;
 
     /**
@@ -74,6 +78,8 @@ public class XiaohuVideo {
     /**
      * 更新时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     /**
