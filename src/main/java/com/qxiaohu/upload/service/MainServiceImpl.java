@@ -1,16 +1,19 @@
 package com.qxiaohu.upload.service;
 
+import com.qxiaohu.upload.db.XiaohuVideo;
 import com.qxiaohu.upload.enums.ErrorCodeConstants;
+import com.qxiaohu.upload.mapper.XiaohuVideoMapper;
 import com.qxiaohu.upload.pojo.VideoReqVo;
 import com.qxiaohu.upload.pojo.VideoStatusRespVo;
-//import com.huaweisoft.hwchatgpt.word.AsyncMain;
-import com.qxiaohu.upload.word.FfmpegAsync;
+import com.qxiaohu.upload.util.JavtrailersUtil;
+import com.qxiaohu.upload.async.FfmpegAsync;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -27,9 +30,10 @@ public class MainServiceImpl implements MainService {
 
     //文件处理列表
     private final static ConcurrentHashMap<String, VideoStatusRespVo> cache = new ConcurrentHashMap<>();
-
     @Resource
     private FfmpegAsync asyncMain;
+    @Resource
+    private XiaohuVideoMapper videoMapper;
 
     @Override
     public synchronized List<String> startWordTask(VideoReqVo reqVo) {
@@ -95,6 +99,27 @@ public class MainServiceImpl implements MainService {
             cache.clear();
         }
         return collect;
+    }
+
+    @Override
+    public void getVideoInfo(String filePath) {
+        File path = new File(filePath);
+        File[] files = path.listFiles(pathname -> pathname.getName().endsWith(".m3u8"));
+        if (files == null){
+            return;
+        }
+        Date date = new Date();
+        for (File file : files) {
+            String fileName = file.getName().replace(".m3u8", "");
+            String contentId = JavtrailersUtil.getVideoLike(fileName);
+            XiaohuVideo xiaohuVideo = new XiaohuVideo();
+            xiaohuVideo.setRemark(contentId);
+            xiaohuVideo.setFile(file.getName());
+            JavtrailersUtil.getVideoInfo(xiaohuVideo);
+            xiaohuVideo.setUpdateTime(date);
+            xiaohuVideo.setUrl("https://2296429409.github.io/app_m3u8/"+file.getName());
+            videoMapper.insert(xiaohuVideo);
+        }
     }
 
 

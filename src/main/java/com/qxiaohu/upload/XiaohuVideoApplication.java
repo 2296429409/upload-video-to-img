@@ -8,15 +8,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.util.StringUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 @SpringBootApplication
 @EnableAsync
 @Slf4j
-public class HWChatGPTApplication {
+public class XiaohuVideoApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext application = SpringApplication.run(HWChatGPTApplication.class, args);
+        ConfigurableApplicationContext application = SpringApplication.run(XiaohuVideoApplication.class, args);
         Environment env = application.getEnvironment();
         String port = env.getProperty("server.port");
         String path = env.getProperty("server.servlet.context-path");

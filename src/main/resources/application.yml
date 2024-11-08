@@ -1,2 +1,28 @@
 server:
   port: 8081
+
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite::resource:sql/xiaohu.db
+
+#mybatis
+mybatis:
+  mapperLocations: classpath*:mapper/*.xml
+
+# MyBatis Plus 的配置项
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+  global-config:
+    db-config:
+      id-type: AUTO # “智能”模式，基于 IdTypeEnvironmentPostProcessor + 数据源的类型，自动适配成 AUTO、INPUT 模式。
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  type-aliases-package: ${jdi.info.base-package}.dal.dataobject
+
+
+http:
+  proxy:
+    ip: 192.168.30.66
+    port: 8080

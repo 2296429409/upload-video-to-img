@@ -1,14 +1,1 @@
-{
-    "file": [
-        {
-            "name": "测试环境",
-            "url": "https://ai-uat.huaweisoft.com/knowledge-api/document/fileupload",
-            "authorization": "hwllm-466533825741062144iUMPv"
-        },
-        {
-            "name": "生产环境",
-            "url": "https://ai.huaweisoft.com/knowledge-api/document/fileupload",
-            "authorization": "hwllm-466533610543906816bT7Uisa"
-        }
-    ]
-}
+UPDATE xiaohu_video SET update_time='2024-11-07 00:00:00.000';

@@ -2,8 +2,6 @@ package com.qxiaohu.upload.pojo;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author xiaxh
  * @date 2024/6/17

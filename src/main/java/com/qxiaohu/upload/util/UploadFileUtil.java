@@ -2,9 +2,9 @@ package com.qxiaohu.upload.util;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.qxiaohu.upload.exception.GlobalErrorCodeConstants;
 import com.qxiaohu.upload.pojo.UploadRespVo;
 import com.qxiaohu.upload.pojo.VideoReqVo;
-import com.qxiaohu.upload.exception.GlobalErrorCodeConstants;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 

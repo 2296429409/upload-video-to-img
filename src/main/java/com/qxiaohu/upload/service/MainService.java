@@ -23,4 +23,10 @@ public interface MainService {
      */
     List<VideoStatusRespVo> status();
 
+    /**
+     * 获取视频
+     * @return
+     */
+    void getVideoInfo(String filePath);
+
 }
