@@ -10,10 +10,7 @@ import okhttp3.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +59,26 @@ public class UploadFileUtil {
     }
 
     /**
+     * 重复检查
+     * @param dataMap
+     * @param config
+     */
+    public static void uploadPhotosRepeat(Map<String, UploadRespVo> dataMap, VideoReqVo config) {
+        log.info("=================重新上传文件：第一次====================");
+        for (Map.Entry<String, UploadRespVo> entry : dataMap.entrySet()) {
+            if (entry.getValue().getKey()==null) {
+                uploadPhotos(entry.getValue().getErrFile(), dataMap, config);
+            }
+        }
+        log.info("=================重新上传文件：第二次====================");
+        for (Map.Entry<String, UploadRespVo> entry : dataMap.entrySet()) {
+            if (entry.getValue().getKey()==null) {
+                uploadPhotos(entry.getValue().getErrFile(), dataMap, config);
+            }
+        }
+    }
+
+    /**
      * 上传图片
      */
     private static void uploadPhotos(File file, Map<String, UploadRespVo> dataMap, VideoReqVo config) {
@@ -86,11 +103,19 @@ public class UploadFileUtil {
                     .build();
             Response response = client.newCall(request).execute();
             JSONObject jsonResponse = JSON.parseObject(response.body().string());
-            uploadRespVo.setId(jsonResponse.getInteger("id"));
-            uploadRespVo.setKey(jsonResponse.getString("key"));
-            uploadRespVo.setResult(true);
+            Integer id = jsonResponse.getInteger("id");
+            String key = jsonResponse.getString("key");
+            uploadRespVo.setId(id);
+            uploadRespVo.setKey(key);
+            if (id == null || key == null){
+                log.error("上传错误：{}-{}",name,jsonResponse.getString("msg"));
+                uploadRespVo.setErrFile(file);
+            }else {
+                uploadRespVo.setResult(true);
+            }
         } catch (Exception e) {
-            log.error("上传错误：" + name);
+            log.error("上传错误：{}-{}", name, e.getMessage());
+            uploadRespVo.setErrFile(file);
         } finally {
             dataMap.put(nameTs, uploadRespVo);
         }
@@ -101,7 +126,7 @@ public class UploadFileUtil {
      * 保存到床图
      */
     public static void backups(Map<String, UploadRespVo> dataMap, VideoReqVo config) {
-        List<Integer> id = dataMap.values().stream().map(UploadRespVo::getId).collect(Collectors.toList());
+        List<Integer> id = dataMap.values().stream().map(UploadRespVo::getId).filter(Objects::nonNull).collect(Collectors.toList());
         int count = (int) Math.ceil(id.size() / 20.0);
         for (int i = 0; i < count; i++) {
             List<Map<String, Object>> pins = new ArrayList<>();

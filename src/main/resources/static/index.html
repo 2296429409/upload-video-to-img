@@ -30,8 +30,7 @@
                                   :rules="{ required: true, message: '请输入文档导入路径', trigger: 'blur' }">
                         <el-input placeholder="请输入" v-model="form.importFile" :disabled="isRunning"></el-input>
                     </el-form-item>
-                    <el-form-item prop="exportFile" label="图片地址"
-                                  :rules="{ required: true, message: '请输入文档输出路径', trigger: 'blur' }">
+                    <el-form-item prop="exportFile" label="图片地址">
                         <el-input placeholder="请输入" v-model="form.exportFile" :disabled="isRunning"></el-input>
                     </el-form-item>
                     <el-form-item prop="cookie" label="cookie"

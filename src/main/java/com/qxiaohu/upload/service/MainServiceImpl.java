@@ -9,8 +9,10 @@ import com.qxiaohu.upload.pojo.VideoStatusRespVo;
 import com.qxiaohu.upload.util.JavtrailersUtil;
 import com.qxiaohu.upload.async.FfmpegAsync;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -44,8 +46,10 @@ public class MainServiceImpl implements MainService {
             throw exception(ErrorCodeConstants.TASK_CURRENTLY_BEING_EXECUTED);
         }
         File importFile = new File(reqVo.getImportFile());
-        File exportFile = new File(reqVo.getExportFile());
-        if (importFile.isDirectory() && exportFile.isFile()) {
+        if (StringUtils.hasText(reqVo.getExportFile()) && !new File(reqVo.getExportFile()).isFile()){
+            throw exception(ErrorCodeConstants.FILE_PATH_NOT_EXIST);
+        }
+        if (importFile.isDirectory()) {
             //获取文件列表
             File[] docFiles = importFile.listFiles(
                     pathname -> pathname.isFile()

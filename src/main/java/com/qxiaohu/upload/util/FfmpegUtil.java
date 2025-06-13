@@ -58,6 +58,9 @@ public class FfmpegUtil {
         String fileName = video.getName().substring(0, video.getName().lastIndexOf("."));
         String m3u8Path = hlsPath + File.separator + fileName+ ".m3u8";
         String outputPath = hlsPath + File.separator + fileName+ "_%4d.ts";
+        if (segmentTime==null || Integer.parseInt(segmentTime)>10){
+            segmentTime = "10";
+        }
         try {
             //创建FFmpeg对象
             FFmpeg ffmpeg = new FFmpeg(Loader.load(org.bytedeco.ffmpeg.ffmpeg.class));
@@ -70,7 +73,7 @@ public class FfmpegUtil {
                     .setAudioCodec("copy")
                     .setVideoCodec("copy")
                     .addExtraArgs("-segment_list", m3u8Path)
-                    .addExtraArgs("-segment_time", segmentTime==null?"10":segmentTime)
+                    .addExtraArgs("-segment_time", segmentTime)
                     .done();
             new FFmpegExecutor(ffmpeg).createJob(
                     builder,
@@ -122,6 +125,7 @@ public class FfmpegUtil {
         String m3u8File = videotoM3u8(ts,  getSegmentTime(videoPath));
         File tsFile = new File(ts);
         tsFile.delete();
+        // 检查文件大小
         findLargeJpgFiles(tsFile.getParentFile(), 18 * 1024 * 1024);
         return m3u8File;
     }
